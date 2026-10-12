@@ -1,14 +1,102 @@
+import { NewsStudioBg } from "./NewsStudioBg";
 import { Composition, Folder } from "remotion";
 import { HelloWorld } from "./HelloWorld";
 import { Logo } from "./HelloWorld/Logo";
 import { Title } from "./HelloWorld/Title";
 
-// Each <Composition> is an entry in the sidebar!
+import { NewsBroadcast } from "./News/NewsBroadcast";
+import { NewsShorts } from "./News/NewsShorts";
+import { NewsIntro } from "./News/components/NewsIntro";
+import { NewsLowerThird } from "./News/components/NewsLowerThird";
+import {
+  defaultNewsData,
+} from "./News/mockData";
+import {
+  getTotalBroadcastDurationInFrames,
+  getTotalShortsDurationInFrames,
+} from "./News/types";
+import { newsBroadcastSchema } from "./News/schema";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <Folder name="Elements">
+      {/* 1. 영상 뉴스 메인 컴포지션 폴더 */}
+      <Folder name="News-Video">
+        {/* 16:9 와이드 메인 종합 뉴스 방송 */}
+        <Composition
+          id="NewsBroadcast"
+          component={NewsBroadcast}
+          schema={newsBroadcastSchema}
+          durationInFrames={getTotalBroadcastDurationInFrames(defaultNewsData, 30)}
+          calculateMetadata={({ props }) => ({
+            durationInFrames: getTotalBroadcastDurationInFrames(props, 30),
+          })}
+          fps={30}
+          width={1920}
+          height={1080}
+          defaultProps={defaultNewsData}
+        />
+
+        {/* 9:16 모바일 숏폼 / 릴스 / 틱톡 뉴스 */}
+        <Composition
+          id="NewsShorts"
+          component={NewsShorts}
+          schema={newsBroadcastSchema}
+          durationInFrames={getTotalShortsDurationInFrames(defaultNewsData, 30)}
+          calculateMetadata={({ props }) => ({
+            durationInFrames: getTotalShortsDurationInFrames(props, 30),
+          })}
+          fps={30}
+          width={1080}
+          height={1920}
+          defaultProps={defaultNewsData}
+        />
+
+        {/* 단독 뉴스 인트로 / 오프닝 */}
+        <Composition
+          id="NewsIntro"
+          component={NewsIntro}
+          durationInFrames={90} // 3초 (30fps)
+          fps={30}
+          width={1920}
+          height={1080}
+          defaultProps={{
+            channelName: "K-NEWS 24",
+            themeColor: "#0b2559",
+            accentColor: "#e60000",
+          }}
+        />
+
+        {/* 단독 뉴스 자막바 (Lower Third) 오버레이 */}
+        <Composition
+          id="NewsLowerThird"
+          component={NewsLowerThird}
+          durationInFrames={120} // 4초 (30fps)
+          fps={30}
+          width={1920}
+          height={1080}
+          defaultProps={{
+            scene: defaultNewsData.scenes[0],
+            themeColor: defaultNewsData.themeColor,
+            accentColor: defaultNewsData.accentColor,
+          }}
+        />
+      </Folder>
+
+      {/* 2. Remotion 기본 템플릿 예제 (참고용) */}
+      <Folder name="Hello-World">
+        <Composition
+          id="HelloWorld"
+          component={HelloWorld}
+          durationInFrames={150}
+          fps={30}
+          width={1920}
+          height={1080}
+          defaultProps={{
+            titleText: "Welcome to Remotion",
+            titleColor: "#000000",
+          }}
+        />
         <Composition
           id="Logo"
           component={Logo}
@@ -35,22 +123,13 @@ export const RemotionRoot: React.FC = () => {
         />
       </Folder>
       <Composition
-        // You can take the "id" to render a video:
-        // bunx remotion render HelloWorld
-        id="HelloWorld"
-        component={HelloWorld}
-        durationInFrames={150}
+        id="NewsStudioBg"
+        component={NewsStudioBg}
+        durationInFrames={90}
         fps={30}
-        width={1920}
-        height={1080}
-        // You can override these props for each render:
-        // https://www.remotion.dev/docs/parametrized-rendering
-        defaultProps={{
-          titleText: "Welcome to Remotion",
-          titleColor: "#000000",
-        }}
+        width={1376}
+        height={768}
       />
-
     </>
   );
 };

@@ -7,6 +7,7 @@
   "private": true,
   "dependencies": {
     "@remotion/cli": "4.0.534",
+    "@remotion/effects": "4.0.534",
     "@remotion/zod-types": "4.0.534",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -23,7 +24,12 @@
   },
   "scripts": {
     "dev": "remotion studio",
+    "render:news": "remotion render NewsBroadcast out/news-broadcast.mp4",
+    "render:shorts": "remotion render NewsShorts out/news-shorts.mp4",
+    "render:intro": "remotion render NewsIntro out/news-intro.mp4",
     "build": "remotion bundle",
+    "chapters": "node scripts/generate-chapters.js",
+    "admin": "node scripts/admin-server.js",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc"
   }
