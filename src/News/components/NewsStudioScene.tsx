@@ -28,22 +28,41 @@ export const NewsStudioScene: React.FC<NewsStudioSceneProps> = ({
 
   const sceneDuration = getSceneDurationInFrames(scene, fps);
 
-  // Subtle studio camera push-in dynamically matching scene duration
-  const cameraScale = interpolate(frame, [0, sceneDuration], [1.0, 1.05], {
+  // 안정감 있는 방송국 스튜디오 지미집/트라이포드 카메라 무빙 (씬 전환 시 덜컹거림 방지)
+  const cameraScale = interpolate(frame, [0, sceneDuration], [1.0, 1.015], {
     extrapolateRight: "clamp",
   });
-  const cameraPanY = interpolate(frame, [0, sceneDuration], [0, -10], {
+  const cameraPanY = interpolate(frame, [0, sceneDuration], [0, -3], {
     extrapolateRight: "clamp",
   });
 
-  // 전환 효과 동적 계산 (기본값: 효과 없음 'none')
+  // 전환 효과 동적 계산 (기본값도 부드럽고 자연스러운 시네마틱 디졸브 전환 제공)
   const transitionType = scene.transitionType || defaultTransitionType || "none";
-  const { style: transitionStyle, flashOverlayOpacity } = getTransitionStyle(
+  const { style: rawTransitionStyle, flashOverlayOpacity } = getTransitionStyle(
     transitionType,
     frame,
     fps,
-    6
+    0
   );
+
+  // 씬 시작(페이드인) 및 씬 종료(페이드아웃) 시 시청 피로감을 없애는 부드러운 디졸브 완충
+  const enterFade = interpolate(frame, [0, 14], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const exitFade = interpolate(frame, [sceneDuration - 10, sceneDuration], [1, 0.85], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const baseSceneOpacity = enterFade * exitFade;
+
+  const transitionStyle: React.CSSProperties = {
+    ...rawTransitionStyle,
+    opacity:
+      rawTransitionStyle.opacity !== undefined
+        ? Number(rawTransitionStyle.opacity) * baseSceneOpacity
+        : baseSceneOpacity,
+  };
 
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
@@ -258,13 +277,16 @@ export const NewsStudioScene: React.FC<NewsStudioSceneProps> = ({
               const titleText = typeof item === "string" ? item : (item.shortTitle || item.headline);
               const isActive = allScenes ? index === activeSceneIndex : false;
               const isDone = allScenes ? index < activeSceneIndex : false;
+              const activeProgress = isActive
+                ? interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" })
+                : 0;
 
               return (
                 <div
                   key={index}
                   style={{
                     backgroundColor: isActive
-                      ? "rgba(29, 78, 216, 0.95)" // Glowing active blue
+                      ? `rgba(29, 78, 216, ${0.75 + 0.2 * activeProgress})` // Smooth glowing active blue
                       : isDone
                       ? "rgba(15, 23, 42, 0.75)" // Past item
                       : "rgba(10, 25, 55, 0.65)", // Upcoming item
@@ -280,12 +302,12 @@ export const NewsStudioScene: React.FC<NewsStudioSceneProps> = ({
                     borderRadius: 10,
                     padding: "18px 22px",
                     boxShadow: isActive
-                      ? "0 0 30px rgba(59, 130, 246, 0.6), 0 10px 25px rgba(0, 0, 0, 0.5)"
+                      ? `0 0 ${18 + 12 * activeProgress}px rgba(59, 130, 246, 0.6), 0 10px 25px rgba(0, 0, 0, 0.5)`
                       : "0 6px 16px rgba(0, 0, 0, 0.3)",
                     display: "flex",
                     alignItems: "center",
                     gap: 16,
-                    transform: isActive ? "scale(1.02)" : "scale(1)",
+                    transform: isActive ? `scale(${1 + 0.02 * activeProgress})` : "scale(1)",
                   }}
                 >
                   {/* Order Number / Status Badge */}

@@ -75,13 +75,40 @@ export const NewsShorts: React.FC<NewsBroadcastProps> = ({
     [0.4, 1]
   );
 
-  // 전환 효과 계산 (기본값: 효과 없음 'none')
-  const shortsTransition = getTransitionStyle(
+  // 전환 효과 계산 (기본값도 부드럽고 자연스러운 시네마틱 디졸브 전환 제공)
+  const rawShortsTransition = getTransitionStyle(
     activeScene.transitionType || defaultTransitionType || "none",
     sceneProgressFrame,
     fps,
     0
   );
+
+  const activeSceneDuration = getSceneDurationInFrames(activeScene, fps);
+  const shortsEnterFade = interpolate(sceneProgressFrame, [0, 14], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const shortsExitFade = interpolate(
+    sceneProgressFrame,
+    [activeSceneDuration - 10, activeSceneDuration],
+    [1, 0.85],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    }
+  );
+  const shortsBaseOpacity = shortsEnterFade * shortsExitFade;
+
+  const shortsTransition = {
+    ...rawShortsTransition,
+    style: {
+      ...rawShortsTransition.style,
+      opacity:
+        rawShortsTransition.style.opacity !== undefined
+          ? Number(rawShortsTransition.style.opacity) * shortsBaseOpacity
+          : shortsBaseOpacity,
+    },
+  };
 
   return (
     <AbsoluteFill

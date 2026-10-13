@@ -30,32 +30,54 @@ export const NewsLowerThird: React.FC<NewsLowerThirdProps> = ({
   const headlineStyle = getAutoFitHeadlineSize(scene.headline, "broadcast");
   const subHeadlineStyle = getAutoFitSubHeadlineSize(scene.subHeadline, "broadcast");
 
-  // Entrance spring animation for the whole lower third container
+  const isFirstScene = (sceneIndex ?? 0) === 0;
+  const sceneDuration = (scene.durationInSeconds || 4) * fps;
+
+  // 첫 번째 씬에서는 하단에서 우아하게 올라오고, 이후 씬에서는 자막바 틀이 고정되어 덜컹거리지 않음
   const containerSpring = spring({
     frame: frame - 5,
     fps,
     config: { damping: 15, mass: 0.8, stiffness: 100 },
   });
 
-  const translateY = interpolate(containerSpring, [0, 1], [150, 0]);
-  const opacity = interpolate(containerSpring, [0, 1], [0, 1]);
+  const translateY = isFirstScene ? interpolate(containerSpring, [0, 1], [150, 0]) : 0;
+  const containerOpacity = isFirstScene ? interpolate(containerSpring, [0, 1], [0, 1]) : 1;
 
-  // Subtitle delayed slide-in
+  // 씬 전환 시 텍스트 내용의 부드러운 디졸브 페이드인/아웃 (방송국 텍스트 모핑)
+  const textEnterOpacity = isFirstScene
+    ? 1
+    : interpolate(frame, [0, 14], [0, 1], { extrapolateRight: "clamp" });
+  const textEnterTranslateY = isFirstScene
+    ? 0
+    : interpolate(frame, [0, 14], [10, 0], { extrapolateRight: "clamp" });
+
+  // 씬 종료 10프레임 전 부드러운 아웃 디졸브 완충
+  const textExitOpacity = interpolate(
+    frame,
+    [sceneDuration - 10, sceneDuration],
+    [1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
+
+  const textOpacity = textEnterOpacity * textExitOpacity;
+
+  // Subtitle 애니메이션 (첫 씬은 지연 슬라이드, 이후 씬은 부드러운 페이드)
   const subSpring = spring({
     frame: frame - 20,
     fps,
     config: { damping: 14, stiffness: 90 },
   });
-  const subTranslateX = interpolate(subSpring, [0, 1], [-80, 0]);
-  const subOpacity = interpolate(subSpring, [0, 1], [0, 1]);
+  const subTranslateX = isFirstScene ? interpolate(subSpring, [0, 1], [-80, 0]) : 0;
+  const subOpacity = (isFirstScene ? interpolate(subSpring, [0, 1], [0, 1]) : textEnterOpacity) * textExitOpacity;
 
-  // Reporter tag delayed slide-in
+  // Reporter tag 애니메이션
   const reporterSpring = spring({
     frame: frame - 30,
     fps,
     config: { damping: 14, stiffness: 90 },
   });
-  const reporterTranslateY = interpolate(reporterSpring, [0, 1], [30, 0]);
+  const reporterTranslateY = isFirstScene ? interpolate(reporterSpring, [0, 1], [30, 0]) : 0;
+  const reporterOpacity = (isFirstScene ? reporterSpring : textEnterOpacity) * textExitOpacity;
 
   return (
     <div
@@ -66,13 +88,22 @@ export const NewsLowerThird: React.FC<NewsLowerThirdProps> = ({
         right: 48,
         zIndex: 40,
         transform: `translateY(${translateY}px)`,
-        opacity,
+        opacity: containerOpacity,
         fontFamily: "'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
       <div style={{ display: "flex", flexDirection: "column", maxWidth: 1480 }}>
         {/* Category & Badge Row */}
-        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 6 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            marginBottom: 6,
+            opacity: textOpacity,
+            transform: `translateY(${textEnterTranslateY}px)`,
+          }}
+        >
           {/* Main Badge */}
           <div
             style={{
@@ -133,7 +164,7 @@ export const NewsLowerThird: React.FC<NewsLowerThirdProps> = ({
                 fontSize: 18,
                 fontWeight: 700,
                 transform: `translateY(${reporterTranslateY}px)`,
-                opacity: reporterSpring,
+                opacity: reporterOpacity,
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2.5">
@@ -159,6 +190,7 @@ export const NewsLowerThird: React.FC<NewsLowerThirdProps> = ({
             padding: "20px 32px",
             boxShadow: "0 15px 35px rgba(0, 0, 0, 0.6)",
             borderRadius: "0 10px 0 0",
+            overflow: "hidden",
           }}
         >
           <div
@@ -171,6 +203,8 @@ export const NewsLowerThird: React.FC<NewsLowerThirdProps> = ({
               textShadow: "0 2px 5px rgba(0,0,0,0.8)",
               wordBreak: "keep-all",
               overflowWrap: "break-word",
+              opacity: textOpacity,
+              transform: `translateY(${textEnterTranslateY}px)`,
             }}
           >
             {scene.headline}

@@ -93,27 +93,42 @@ export const NewsMedia: React.FC<NewsMediaProps> = ({
     );
   }
 
-  // 1장의 단일 사진일 경우
+  // 1장의 단일 사진일 경우에도 미세하고 우아한 켄 번스 줌 적용
   if (imageList.length === 1) {
+    const singleZoom = interpolate(frame, [0, durationInFrames], [1.0, 1.04], {
+      extrapolateRight: "clamp",
+    });
     return (
-      <Img
-        src={imageList[0]}
+      <div
         style={{
+          position: "relative",
           width: "100%",
           height: "100%",
-          objectFit: "cover",
+          overflow: "hidden",
           ...style,
         }}
-      />
+      >
+        <Img
+          src={imageList[0]}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transform: `scale(${singleZoom})`,
+          }}
+        />
+      </div>
     );
   }
 
-  // 2~5장의 다중 사진 슬라이드쇼
+  // 2~5장의 다중 사진 슬라이드쇼 (부드러운 크로스 디졸브 페이드 전환)
   const count = imageList.length;
   const slotFrames = durationInFrames / count;
   const currentSlotIndex = Math.min(Math.floor(frame / slotFrames), count - 1);
   const frameInSlot = frame - currentSlotIndex * slotFrames;
-  const transitionFrames = Math.min(15, Math.floor(slotFrames * 0.25));
+  
+  // 전환 시간을 약 0.7~0.8초(22~24프레임)로 여유 있게 늘려 부드러운 디졸브 연출
+  const transitionFrames = Math.min(24, Math.floor(slotFrames * 0.3));
 
   const isTransitioning =
     currentSlotIndex < count - 1 && frameInSlot >= slotFrames - transitionFrames;
@@ -127,14 +142,14 @@ export const NewsMedia: React.FC<NewsMediaProps> = ({
       )
     : 0;
 
-  // 각 사진별 미세한 켄 번스(Ken Burns) 줌인 효과
-  const currentZoom = interpolate(frameInSlot, [0, slotFrames], [1.02, 1.08], {
+  // 각 사진별 연속적이고 자연스러운 켄 번스(Ken Burns) 줌인 효과 (줌 점프 제거)
+  const currentZoom = interpolate(frameInSlot, [0, slotFrames], [1.0, 1.04], {
     extrapolateRight: "clamp",
   });
   const nextZoom = interpolate(
     frameInSlot - (slotFrames - transitionFrames),
     [0, transitionFrames],
-    [1.0, 1.02],
+    [1.0, 1.01],
     { extrapolateRight: "clamp" }
   );
 
