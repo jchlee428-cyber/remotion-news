@@ -36,8 +36,8 @@ export const NewsStudioScene: React.FC<NewsStudioSceneProps> = ({
     extrapolateRight: "clamp",
   });
 
-  // 16가지 고품질 전환 효과 동적 계산
-  const transitionType = scene.transitionType || defaultTransitionType || "zoom-in";
+  // 전환 효과 동적 계산 (기본값: 효과 없음 'none')
+  const transitionType = scene.transitionType || defaultTransitionType || "none";
   const { style: transitionStyle, flashOverlayOpacity } = getTransitionStyle(
     transitionType,
     frame,

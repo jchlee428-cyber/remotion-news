@@ -4,7 +4,8 @@ import { interpolate, spring } from "remotion";
  * 16가지 고품질 방송용 뉴스 전환 효과 타입
  */
 export type TransitionType =
-  | "zoom-in"      // 1. 줌인 (기본: 중앙에서 확대 등장)
+  | "none"         // 0. 효과 없음 (기본값: 전환 애니메이션 없이 즉시 표시)
+  | "zoom-in"      // 1. 줌인 (중앙에서 확대 등장)
   | "zoom-out"     // 2. 줌아웃 (원거리에서 축소 안착)
   | "fade"         // 3. 크로스 페이드 (부드러운 디졸브)
   | "slide-left"   // 4. 슬라이드 좌 (우측에서 좌측으로 이동)
@@ -28,7 +29,8 @@ export interface TransitionOption {
 }
 
 export const TRANSITION_OPTIONS: TransitionOption[] = [
-  { value: "zoom-in", label: "줌인 (Zoom In)", description: "중앙에서 확대되며 시원하게 등장 (기본)" },
+  { value: "none", label: "효과 없음 (None)", description: "전환 애니메이션 없이 즉시 화면 표시 (기본값)" },
+  { value: "zoom-in", label: "줌인 (Zoom In)", description: "중앙에서 확대되며 시원하게 등장" },
   { value: "zoom-out", label: "줌아웃 (Zoom Out)", description: "원거리에서 축소되며 안정감 있게 안착" },
   { value: "fade", label: "페이드 (Cross Fade)", description: "부드럽고 자연스러운 디졸브 전환" },
   { value: "slide-left", label: "슬라이드 좌 (Slide Left)", description: "화면 우측에서 좌측으로 미끄러져 등장" },
@@ -55,7 +57,7 @@ export interface TransitionResult {
  * 프레임 기반 씬 전환 스타일 계산 유틸리티
  */
 export const getTransitionStyle = (
-  type: TransitionType = "zoom-in",
+  type: TransitionType = "none",
   frame: number,
   fps = 30,
   delay = 6
@@ -230,13 +232,20 @@ export const getTransitionStyle = (
       break;
     }
 
-    case "zoom-in":
-    default: {
+    case "zoom-in": {
       const scale = interpolate(spr, [0, 1], [0.75, 1]);
       const opacity = interpolate(spr, [0, 1], [0, 1]);
       style = {
         transform: `scale(${scale})`,
         opacity,
+      };
+      break;
+    }
+
+    case "none":
+    default: {
+      style = {
+        opacity: 1,
       };
       break;
     }

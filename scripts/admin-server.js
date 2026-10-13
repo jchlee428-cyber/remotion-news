@@ -106,7 +106,7 @@ export const defaultNewsData: NewsBroadcastProps = {
   scenes: [
 ${sceneBlocks.join(',\n')}
   ],
-  defaultTransitionType: ${JSON.stringify(data.defaultTransitionType || "zoom-in")},
+  defaultTransitionType: ${JSON.stringify(data.defaultTransitionType || "none")},
   themeColor: ${JSON.stringify(data.themeColor || "#0052cc")},
   accentColor: ${JSON.stringify(data.accentColor || "#e60000")},
   // 🎵 배경 음악(BGM) 및 스마트 오디오 덕킹 설정
@@ -457,9 +457,10 @@ const HTML_PAGE = `<!DOCTYPE html>
                 </div>
               </div>
               <div class="form-group">
-                <label>뉴스 전환 효과 (16종)</label>
+                <label>뉴스 전환 효과</label>
                 <select onchange="updateScene(\${idx}, 'transitionType', this.value)">
-                  <option value="zoom-in" \${scene.transitionType === 'zoom-in' || !scene.transitionType ? 'selected' : ''}>🔍 줌인 (기본)</option>
+                  <option value="none" \${scene.transitionType === 'none' || !scene.transitionType ? 'selected' : ''}>🚫 효과 없음 (기본값)</option>
+                  <option value="zoom-in" \${scene.transitionType === 'zoom-in' ? 'selected' : ''}>🔍 줌인</option>
                   <option value="zoom-out" \${scene.transitionType === 'zoom-out' ? 'selected' : ''}>🔎 줌아웃</option>
                   <option value="fade" \${scene.transitionType === 'fade' ? 'selected' : ''}>🌫️ 페이드</option>
                   <option value="slide-left" \${scene.transitionType === 'slide-left' ? 'selected' : ''}>⬅️ 슬라이드 좌</option>
@@ -543,7 +544,7 @@ const HTML_PAGE = `<!DOCTYPE html>
         subHeadline: '상세 내용을 입력하세요.',
         imageSrc: mediaFiles[0] || '1001as.jpg',
         durationInSeconds: 4,
-        transitionType: 'zoom-in',
+        transitionType: 'none',
         reporter: { name: '방송팀', role: '담당자', location: '본당' }
       });
       renderScenes();

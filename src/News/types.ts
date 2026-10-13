@@ -24,7 +24,7 @@ export type NewsScene = {
   durationInFrames?: number;
   /** 재생시간 길이: 초 단위 (예: 5 = 5초, 8.5 = 8.5초, 15 = 15초) */
   durationInSeconds?: number;
-  /** 뉴스 씬 전환 효과 (기본값: zoom-in) */
+  /** 뉴스 씬 전환 효과 (기본값: none) */
   transitionType?: TransitionType;
 };
 
@@ -37,7 +37,7 @@ export type NewsBroadcastProps = {
   scenes: NewsScene[];
   themeColor: string;
   accentColor: string;
-  /** 전체 뉴스 기본 전환 효과 (개별 씬 미설정 시 적용, 기본값: zoom-in) */
+  /** 전체 뉴스 기본 전환 효과 (개별 씬 미설정 시 적용, 기본값: none) */
   defaultTransitionType?: TransitionType;
   /** 배경음악(BGM) 오디오 파일 경로 (기본값: staticFile("news_bgm.wav")) */
   bgmSrc?: string;

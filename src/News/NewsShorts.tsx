@@ -21,7 +21,7 @@ export const NewsShorts: React.FC<NewsBroadcastProps> = ({
   channelName,
   broadcastDate,
   scenes,
-  defaultTransitionType,
+  defaultTransitionType = "none",
   accentColor = "#e60000",
   bgmSrc,
   bgmVolume,
@@ -75,9 +75,9 @@ export const NewsShorts: React.FC<NewsBroadcastProps> = ({
     [0.4, 1]
   );
 
-  // 16가지 전환 효과 계산 (쇼츠 미디어 프레임 전용)
+  // 전환 효과 계산 (기본값: 효과 없음 'none')
   const shortsTransition = getTransitionStyle(
-    activeScene.transitionType || defaultTransitionType || "zoom-in",
+    activeScene.transitionType || defaultTransitionType || "none",
     sceneProgressFrame,
     fps,
     0

@@ -39,6 +39,7 @@ export const newsSceneSchema = z.object({
   durationInFrames: z.number().min(30).max(1800).optional().describe("재생시간 길이 (프레임 단위)"),
   transitionType: z
     .enum([
+      "none",
       "zoom-in",
       "zoom-out",
       "fade",
@@ -72,6 +73,7 @@ export const newsBroadcastSchema = z.object({
   scenes: z.array(newsSceneSchema).describe("뉴스 씬 목록 (순서대로 순차 방송)"),
   defaultTransitionType: z
     .enum([
+      "none",
       "zoom-in",
       "zoom-out",
       "fade",

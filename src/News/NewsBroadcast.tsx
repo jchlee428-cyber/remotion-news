@@ -14,7 +14,7 @@ export const NewsBroadcast: React.FC<NewsBroadcastProps> = ({
   broadcastDate,
   stockTicker,
   scenes,
-  defaultTransitionType,
+  defaultTransitionType = "none",
   themeColor,
   accentColor,
   bgmSrc,
