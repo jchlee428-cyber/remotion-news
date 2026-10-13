@@ -65,7 +65,8 @@ export const NewsShorts: React.FC<NewsBroadcastProps> = ({
   const titleY = interpolate(transitionSpring, [0, 1], [40, 0]);
   const titleOpacity = interpolate(transitionSpring, [0, 1], [0, 1]);
 
-  // Subtle pulsing dot for LIVE/ON-AIR
+
+  // Subtle pulsing dot for status indicators
   const livePulse = interpolate(
     Math.sin((frame / 20) * Math.PI * 2),
     [-1, 1],
@@ -135,31 +136,6 @@ export const NewsShorts: React.FC<NewsBroadcastProps> = ({
             }}
           >
             {channelName}
-          </div>
-          <div
-            style={{
-              backgroundColor: accentColor,
-              color: "#ffffff",
-              padding: "8px 18px",
-              borderRadius: 8,
-              fontSize: 22,
-              fontWeight: 900,
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              boxShadow: `0 0 18px ${accentColor}`,
-            }}
-          >
-            <span
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                backgroundColor: "#ffffff",
-                opacity: livePulse,
-              }}
-            />
-            LIVE
           </div>
         </div>
 

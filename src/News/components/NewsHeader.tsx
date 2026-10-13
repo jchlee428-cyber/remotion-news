@@ -1,5 +1,4 @@
 import React from "react";
-import { interpolate, useCurrentFrame } from "remotion";
 
 export interface NewsHeaderProps {
   channelName: string;
@@ -14,15 +13,6 @@ export const NewsHeader: React.FC<NewsHeaderProps> = ({
   stockTicker,
   accentColor = "#e60000",
 }) => {
-  const frame = useCurrentFrame();
-
-  // Pulsing animation for the LIVE red dot
-  const livePulse = interpolate(
-    Math.sin((frame / 30) * Math.PI * 2),
-    [-1, 1],
-    [0.4, 1]
-  );
-
   return (
     <div
       style={{
@@ -71,34 +61,6 @@ export const NewsHeader: React.FC<NewsHeaderProps> = ({
           >
             {channelName}
           </span>
-        </div>
-
-        {/* LIVE Indicator */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            backgroundColor: accentColor,
-            padding: "6px 16px",
-            borderRadius: 6,
-            fontWeight: 900,
-            fontSize: 18,
-            color: "#ffffff",
-            letterSpacing: 2,
-            boxShadow: `0 0 15px ${accentColor}`,
-          }}
-        >
-          <span
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: "50%",
-              backgroundColor: "#ffffff",
-              opacity: livePulse,
-            }}
-          />
-          LIVE
         </div>
       </div>
 
