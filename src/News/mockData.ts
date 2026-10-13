@@ -27,7 +27,7 @@ export const defaultNewsData: NewsBroadcastProps = {
         staticFile("1002as.jpg"),
       ],
       imageSrc: staticFile("1001as.jpg"),
-      durationInSeconds: 4,
+      durationInSeconds: 20,
     },
     {
       id: "bigtech-korea-datacenter",
@@ -49,7 +49,7 @@ export const defaultNewsData: NewsBroadcastProps = {
         staticFile("1002as.jpg"),
       ],
       imageSrc: staticFile("1003as.jpg"),
-      durationInSeconds: 4,
+      durationInSeconds: 20,
     },
     {
       id: "space-deep-exploration",
@@ -66,7 +66,7 @@ export const defaultNewsData: NewsBroadcastProps = {
       videoSrc: staticFile("1005as.mp4"),
       videoMuted: false,
       videoVolume: 1,
-      durationInSeconds: 5,
+      durationInSeconds: 20,
     }
   ],
   defaultTransitionType: "none",
