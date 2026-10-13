@@ -6,7 +6,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { NewsBroadcastProps, getSceneDurationInFrames } from "./types";
+import { NewsBroadcastProps, getSceneDurationInFrames, getSceneImages } from "./types";
 import { NewsMedia, isVideoMedia } from "./components/NewsMedia";
 import { NewsBgmAudio } from "./components/NewsBgmAudio";
 import { NewsTransitionSfx } from "./components/NewsTransitionSfx";
@@ -312,13 +312,20 @@ export const NewsShorts: React.FC<NewsBroadcastProps> = ({
           const mediaSource = activeScene.videoSrc || activeScene.mediaSrc || activeScene.imageSrc;
           const isVideo = isVideoMedia(mediaSource, activeScene.mediaType);
           const activeSceneDuration = getSceneDurationInFrames(activeScene, fps);
-          const hasMultipleImages = !!(activeScene.images && activeScene.images.length > 1);
+          const activeSceneImages = getSceneImages(activeScene);
+          const hasMultipleImages = activeSceneImages.length > 1;
 
           return (
             <NewsMedia
               src={mediaSource}
               imageSrc={activeScene.imageSrc}
               images={activeScene.images}
+              photo1={activeScene.photo1}
+              photo2={activeScene.photo2}
+              photo3={activeScene.photo3}
+              photo4={activeScene.photo4}
+              photo5={activeScene.photo5}
+              videoSrc={activeScene.videoSrc}
               mediaType={activeScene.mediaType}
               muted={activeScene.videoMuted ?? true}
               volume={activeScene.videoVolume ?? 1}

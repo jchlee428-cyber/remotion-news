@@ -1,6 +1,21 @@
 import { TransitionType } from "./utils/transitionEffects";
 export type { TransitionType };
 
+export const AVAILABLE_PHOTO_OPTIONS = [
+  "none",
+  "1001as.jpg",
+  "1002as.jpg",
+  "1003as.jpg",
+  "1004as.jpg",
+  "1005as.mp4",
+  "ai_tech_news.jpg",
+  "datacenter_tech.jpg",
+  "news_studio_bg.jpg",
+  "space_launch_tech.jpg",
+] as const;
+
+export type AvailablePhotoOption = (typeof AVAILABLE_PHOTO_OPTIONS)[number];
+
 export type NewsScene = {
   id: string;
   category: string;
@@ -16,15 +31,21 @@ export type NewsScene = {
   imageSrc?: string;
   /** 뉴스 사진 목록 (최대 5장까지 선택 가능, 2장 이상 시 자동 슬라이드쇼 재생) */
   images?: string[];
+  /** 드롭다운 사진 선택 슬롯 1~5 */
+  photo1?: AvailablePhotoOption;
+  photo2?: AvailablePhotoOption;
+  photo3?: AvailablePhotoOption;
+  photo4?: AvailablePhotoOption;
+  photo5?: AvailablePhotoOption;
   videoSrc?: string;
   mediaSrc?: string;
   mediaType?: "image" | "video" | "auto";
   videoMuted?: boolean;
   videoVolume?: number;
   keyPoints?: string[];
-  /** 재생시간 길이: 프레임 단위 (30fps 기준: 30 = 1초, 120 = 4초, 300 = 10초) */
+  /** 재생시간 길이: 프레임 단위 (30fps 기준: 600 = 20초) */
   durationInFrames?: number;
-  /** 재생시간 길이: 초 단위 (예: 5 = 5초, 8.5 = 8.5초, 15 = 15초) */
+  /** 재생시간 길이: 초 단위 (기본값: 20초) */
   durationInSeconds?: number;
   /** 뉴스 씬 전환 효과 (기본값: none) */
   transitionType?: TransitionType;
@@ -63,14 +84,51 @@ export type NewsBroadcastProps = {
  * 둘 다 없을 경우 기본 120프레임(4초)을 적용합니다.
  */
 export const getSceneDurationInFrames = (scene?: Partial<NewsScene>, fps = 30): number => {
-  if (!scene) return 120;
+  if (!scene) return 600; // 기본 20초 (600프레임)
   if (typeof scene.durationInSeconds === "number" && scene.durationInSeconds > 0) {
     return Math.round(scene.durationInSeconds * fps);
   }
   if (typeof scene.durationInFrames === "number" && scene.durationInFrames > 0) {
     return scene.durationInFrames;
   }
-  return 120; // 기본 4초 (120프레임)
+  return 600; // 앞선 씬들과 동일하게 기본 20초 (600프레임) 유지
+};
+
+/**
+ * 씬에 등록된 사진 목록을 안전하게 추출합니다.
+ * photo1~5 드롭다운 선택값, images 배열, imageSrc 단일값을 모두 통합 처리하며,
+ * 비어있을 경우 안전한 기본 사진("1001as.jpg")을 제공하여 빈 화면을 방지합니다.
+ */
+export const getSceneImages = (scene?: Partial<NewsScene>): string[] => {
+  if (!scene) return ["1001as.jpg"];
+
+  const directPhotos = [
+    scene.photo1,
+    scene.photo2,
+    scene.photo3,
+    scene.photo4,
+    scene.photo5,
+  ].filter((p): p is AvailablePhotoOption => Boolean(p && p !== "none" && p.trim() !== ""));
+
+  if (directPhotos.length > 0) {
+    return directPhotos.slice(0, 5);
+  }
+
+  if (Array.isArray(scene.images) && scene.images.length > 0) {
+    const valid = scene.images.filter(Boolean);
+    if (valid.length > 0) return valid.slice(0, 5);
+  }
+
+  if (scene.imageSrc && scene.imageSrc.trim() !== "") {
+    return [scene.imageSrc];
+  }
+
+  // 동영상이 설정되어 있지 않다면 기본 사진 제공
+  if (!scene.videoSrc) {
+    return ["1001as.jpg"];
+  }
+
+  return [];
 };
 
 /**

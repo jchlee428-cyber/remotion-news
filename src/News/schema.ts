@@ -1,28 +1,54 @@
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
+import { AVAILABLE_PHOTO_OPTIONS } from "./types";
 
 /**
  * 개별 뉴스 씬(Scene) 입력 스키마
  */
 export const newsSceneSchema = z.object({
-  id: z.string().describe("씬 고유 식별자 (예: church-news-1)"),
-  category: z.string().describe("뉴스 분류 카테고리 (예: 목장주일, 예배안내, 찬양대)"),
+  id: z.string().default("scene-new").describe("씬 고유 식별자 (예: church-news-1)"),
+  category: z.string().default("교회소식").describe("뉴스 분류 카테고리 (예: 목장주일, 갈렙교회, 찬양대)"),
   badgeType: z
     .enum(["breaking", "exclusive", "live", "economy", "tech"])
-    .optional()
+    .default("breaking")
     .describe("자막 상단 배지 스타일"),
   shortTitle: z.string().optional().describe("헤드라인 리스트 요약 제목 (미입력시 헤드라인 사용)"),
-  headline: z.string().describe("메인 뉴스 헤드라인 제목"),
-  subHeadline: z.string().describe("부제목 / 세부 공지 설명 문구"),
+  headline: z.string().default("새로운 뉴스 헤드라인을 입력하세요").describe("메인 뉴스 헤드라인 제목"),
+  subHeadline: z.string().default("세부 공지 사항 및 내용을 입력하세요").describe("부제목 / 세부 공지 설명 문구"),
   reporter: z
     .object({
-      name: z.string().describe("취재 기자 / 보고자 성명"),
-      role: z.string().describe("직책 (예: 담당자, 방송팀, 리포터)"),
-      location: z.string().describe("취재 장소 (예: 본당 대예배실, 교육관)"),
+      name: z.string().default("방송팀").describe("취재 기자 / 보고자 성명"),
+      role: z.string().default("담당자").describe("직책 (예: 담당자, 방송팀, 리포터)"),
+      location: z.string().default("본당").describe("취재 장소 (예: 본당 대예배실, 교육관)"),
     })
-    .optional()
+    .default({
+      name: "방송팀",
+      role: "담당자",
+      location: "본당",
+    })
     .describe("현장 취재 담당자 정보"),
-  imageSrc: z.string().optional().describe("사진 이미지 파일 경로 (staticFile)"),
+  // Remotion Studio Inspector에서 마우스 클릭으로 선택할 수 있는 사진 슬롯 1~5
+  photo1: z
+    .enum(AVAILABLE_PHOTO_OPTIONS)
+    .default("1001as.jpg")
+    .describe("📷 [사진 1] 대표 보도 사진 선택"),
+  photo2: z
+    .enum(AVAILABLE_PHOTO_OPTIONS)
+    .default("1002as.jpg")
+    .describe("📷 [사진 2] 슬라이드쇼 2번 사진 (없으면 none)"),
+  photo3: z
+    .enum(AVAILABLE_PHOTO_OPTIONS)
+    .default("none")
+    .describe("📷 [사진 3] 슬라이드쇼 3번 사진 (없으면 none)"),
+  photo4: z
+    .enum(AVAILABLE_PHOTO_OPTIONS)
+    .default("none")
+    .describe("📷 [사진 4] 슬라이드쇼 4번 사진 (없으면 none)"),
+  photo5: z
+    .enum(AVAILABLE_PHOTO_OPTIONS)
+    .default("none")
+    .describe("📷 [사진 5] 슬라이드쇼 5번 사진 (없으면 none)"),
+  imageSrc: z.string().optional().describe("기존 사진 경로 호환 필드"),
   images: z
     .array(z.string())
     .max(5)
@@ -30,17 +56,17 @@ export const newsSceneSchema = z.object({
     .describe("뉴스 사진 목록 (최대 5장까지 선택 가능, 자동 슬라이드쇼 재생)"),
   videoSrc: z.string().optional().describe("동영상 파일 경로 (MP4 등)"),
   mediaSrc: z.string().optional().describe("통합 미디어 경로"),
-  mediaType: z.enum(["image", "video", "auto"]).optional().describe("미디어 유형"),
-  videoMuted: z.boolean().optional().describe("동영상 음소거 여부 (false면 소리 켜짐)"),
-  videoVolume: z.number().min(0).max(1).step(0.05).optional().describe("동영상 볼륨 크기 (0.0 ~ 1.0)"),
+  mediaType: z.enum(["image", "video", "auto"]).default("auto").describe("미디어 유형"),
+  videoMuted: z.boolean().default(false).describe("동영상 음소거 여부 (false면 소리 켜짐)"),
+  videoVolume: z.number().min(0).max(1).step(0.05).default(1).describe("동영상 볼륨 크기 (0.0 ~ 1.0)"),
   keyPoints: z.array(z.string()).optional().describe("핵심 포인트 목록"),
   durationInSeconds: z
     .number()
     .min(1)
     .max(60)
-    .step(0.5)
-    .optional()
-    .describe("재생시간 길이 (초 단위, 예: 4, 5, 10초)"),
+    .step(1)
+    .default(20)
+    .describe("재생시간 길이 (초 단위, 앞 씬과 동일하게 기본 20초)"),
   durationInFrames: z.number().min(30).max(1800).optional().describe("재생시간 길이 (프레임 단위)"),
   transitionType: z
     .enum([
@@ -62,8 +88,8 @@ export const newsSceneSchema = z.object({
       "bounce",
       "spin",
     ])
-    .optional()
-    .describe("뉴스 전환 효과 (줌인, 줌아웃, 페이드, 슬라이드 4종, 와이프 3종, 3D플립 2종, 블러, 플래시, 바운스, 스핀)"),
+    .default("none")
+    .describe("뉴스 전환 효과 (기본값: none)"),
 });
 
 /**

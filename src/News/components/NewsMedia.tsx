@@ -1,11 +1,16 @@
 import React from "react";
-import { Img, OffthreadVideo, interpolate, useCurrentFrame } from "remotion";
+import { Img, OffthreadVideo, interpolate, staticFile, useCurrentFrame } from "remotion";
 
 export type NewsMediaProps = {
   src?: string;
   imageSrc?: string;
   /** 최대 5장까지 지원하는 뉴스 사진 목록 (2장 이상 등록 시 자동 슬라이드쇼 재생) */
   images?: string[];
+  photo1?: string;
+  photo2?: string;
+  photo3?: string;
+  photo4?: string;
+  photo5?: string;
   videoSrc?: string;
   mediaType?: "image" | "video" | "auto";
   style?: React.CSSProperties;
@@ -18,6 +23,26 @@ export type NewsMediaProps = {
 };
 
 /**
+ * 정적 파일 경로 안전 변환 (Remotion Studio Inspector에서 파일명만 입력/선택해도 staticFile로 자동 해석)
+ */
+export const resolveMediaUrl = (pathStr?: string): string => {
+  if (!pathStr || pathStr === "none" || pathStr.trim() === "") return "";
+  if (
+    pathStr.startsWith("http://") ||
+    pathStr.startsWith("https://") ||
+    pathStr.startsWith("data:") ||
+    pathStr.startsWith("blob:")
+  ) {
+    return pathStr;
+  }
+  try {
+    return staticFile(pathStr.replace(/^\/+/, ""));
+  } catch {
+    return pathStr;
+  }
+};
+
+/**
  * Checks if the media source is a video based on mediaType or file extension (.mp4, .webm, .mov, etc.)
  */
 export const isVideoMedia = (
@@ -26,7 +51,7 @@ export const isVideoMedia = (
 ): boolean => {
   if (mediaType === "video") return true;
   if (mediaType === "image") return false;
-  if (!src) return false;
+  if (!src || src === "none") return false;
 
   const cleanSrc = src.split("?")[0].split("#")[0].toLowerCase();
   return (
@@ -42,32 +67,54 @@ export const NewsMedia: React.FC<NewsMediaProps> = ({
   src,
   imageSrc,
   images,
+  photo1,
+  photo2,
+  photo3,
+  photo4,
+  photo5,
   videoSrc,
   mediaType = "auto",
   style,
   muted = true,
   volume = 1,
-  durationInFrames = 120,
+  durationInFrames = 600,
   currentFrame,
 }) => {
   const hookFrame = useCurrentFrame();
   const frame = typeof currentFrame === "number" ? currentFrame : hookFrame;
 
-  const resolvedSrc = videoSrc || src || imageSrc || "";
-  const isVideo = isVideoMedia(resolvedSrc, mediaType);
+  const rawVideoSrc = videoSrc || (mediaType === "video" ? (src || imageSrc) : "");
+  const isVideo = isVideoMedia(rawVideoSrc || src || imageSrc, mediaType);
+  const resolvedVideoSrc = resolveMediaUrl(rawVideoSrc || (isVideo ? src : ""));
+
+  // photo1~5 드롭다운 선택값 우선 수집
+  const directPhotos = [photo1, photo2, photo3, photo4, photo5]
+    .filter((p): p is string => Boolean(p && p !== "none" && p.trim() !== ""))
+    .map(resolveMediaUrl);
 
   // 다중 이미지 목록 (최대 5개 제한)
-  const imageList =
-    images && images.length > 0
-      ? images.filter(Boolean).slice(0, 5)
-      : resolvedSrc && !isVideo
-      ? [resolvedSrc]
-      : [];
+  let rawImageList: string[] = [];
+  if (directPhotos.length > 0) {
+    rawImageList = directPhotos.slice(0, 5);
+  } else if (images && images.length > 0) {
+    rawImageList = images.filter(Boolean).slice(0, 5).map(resolveMediaUrl);
+  } else if (imageSrc && imageSrc !== "none" && imageSrc.trim() !== "") {
+    rawImageList = [resolveMediaUrl(imageSrc)];
+  } else if (src && !isVideo && src !== "none" && src.trim() !== "") {
+    rawImageList = [resolveMediaUrl(src)];
+  }
 
-  if (isVideo && resolvedSrc) {
+  // 동영상이 아니고 사진이 전혀 지정되지 않은 경우에도 빈 화면 대신 안전한 기본 사진 표시
+  if (!isVideo && rawImageList.length === 0) {
+    rawImageList = [resolveMediaUrl("1001as.jpg")];
+  }
+
+  const imageList = rawImageList.filter(Boolean);
+
+  if (isVideo && resolvedVideoSrc) {
     return (
       <OffthreadVideo
-        src={resolvedSrc}
+        src={resolvedVideoSrc}
         style={{
           width: "100%",
           height: "100%",

@@ -5,7 +5,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { NewsScene, getSceneDurationInFrames } from "../types";
+import { NewsScene, getSceneDurationInFrames, getSceneImages } from "../types";
 import { NewsMedia, isVideoMedia } from "./NewsMedia";
 import { getAutoFitListTitleSize } from "../utils/textUtils";
 import { getTransitionStyle, TransitionType } from "../utils/transitionEffects";
@@ -169,7 +169,8 @@ export const NewsStudioScene: React.FC<NewsStudioSceneProps> = ({
           {(() => {
             const mediaSource = scene.videoSrc || scene.mediaSrc || scene.imageSrc;
             const isVideo = isVideoMedia(mediaSource, scene.mediaType);
-            const hasMultipleImages = !!(scene.images && scene.images.length > 1);
+            const sceneImages = getSceneImages(scene);
+            const hasMultipleImages = sceneImages.length > 1;
 
             return (
               <>
@@ -177,6 +178,12 @@ export const NewsStudioScene: React.FC<NewsStudioSceneProps> = ({
                   src={mediaSource}
                   imageSrc={scene.imageSrc}
                   images={scene.images}
+                  photo1={scene.photo1}
+                  photo2={scene.photo2}
+                  photo3={scene.photo3}
+                  photo4={scene.photo4}
+                  photo5={scene.photo5}
+                  videoSrc={scene.videoSrc}
                   mediaType={scene.mediaType}
                   muted={scene.videoMuted ?? true}
                   volume={scene.videoVolume ?? 1}
@@ -224,7 +231,7 @@ export const NewsStudioScene: React.FC<NewsStudioSceneProps> = ({
                   {isVideo
                     ? "현장 보도 영상"
                     : hasMultipleImages
-                    ? `현장 사진 (${scene.images!.length}장)`
+                    ? `현장 사진 (${sceneImages.length}장)`
                     : "현장 보도 자료"}
                 </div>
               </>

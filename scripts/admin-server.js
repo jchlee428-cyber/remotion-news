@@ -616,13 +616,16 @@ const HTML_PAGE = `<!DOCTYPE html>
       renderScenes();
     }
     function addScene() {
+      const defaultImg = mediaFiles[0] || '1001as.jpg';
+      const defaultImg2 = mediaFiles[1] || '1002as.jpg';
       appData.scenes.push({
         id: 'scene-' + (appData.scenes.length + 1),
         category: '새 소식',
         headline: '새로운 뉴스 헤드라인을 입력하세요.',
         subHeadline: '상세 내용을 입력하세요.',
-        imageSrc: mediaFiles[0] || '1001as.jpg',
-        durationInSeconds: 4,
+        imageSrc: defaultImg,
+        images: [defaultImg, defaultImg2],
+        durationInSeconds: 20,
         transitionType: 'none',
         reporter: { name: '방송팀', role: '담당자', location: '본당' }
       });
