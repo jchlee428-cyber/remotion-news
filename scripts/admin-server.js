@@ -85,7 +85,13 @@ function saveMockData(data) {
         lines.push(`      videoVolume: ${s.videoVolume},`);
       }
     } else {
-      lines.push(`      imageSrc: staticFile(${JSON.stringify(path.basename(s.imageSrc || "1001as.jpg"))}),`);
+      const imgList = (Array.isArray(s.images) && s.images.length > 0)
+        ? s.images.slice(0, 5)
+        : [s.imageSrc || "1001as.jpg"];
+      if (imgList.length > 1) {
+        lines.push(`      images: [\n        ${imgList.map(img => `staticFile(${JSON.stringify(path.basename(img))})`).join(',\n        ')}\n      ],`);
+      }
+      lines.push(`      imageSrc: staticFile(${JSON.stringify(path.basename(imgList[0]))}),`);
     }
 
     if (s.transitionType) {
@@ -427,6 +433,10 @@ const HTML_PAGE = `<!DOCTYPE html>
       (appData.scenes || []).forEach((scene, idx) => {
         const isVideo = scene.videoSrc || (scene.imageSrc && scene.imageSrc.endsWith('.mp4'));
         const currentFile = scene.videoSrc || scene.imageSrc || '1001as.jpg';
+        const imageOnlyFiles = mediaFiles.filter(f => !f.endsWith('.mp4') && !f.endsWith('.webm') && !f.endsWith('.mov') && !f.endsWith('.wav'));
+        const sceneImages = (Array.isArray(scene.images) && scene.images.length > 0)
+          ? scene.images
+          : [scene.imageSrc || currentFile];
 
         const fileOptions = mediaFiles.map(f => 
           \`<option value="\${f}" \${f === currentFile ? 'selected' : ''}>\${f} \${f.endsWith('.mp4') ? '(동영상)' : '(사진)'}</option>\`
@@ -444,7 +454,7 @@ const HTML_PAGE = `<!DOCTYPE html>
                 <input type="text" value="\${scene.category || ''}" onchange="updateScene(\${idx}, 'category', this.value)">
               </div>
               <div class="form-group">
-                <label>미디어 파일 선택</label>
+                <label>메인 미디어 (동영상 / 대표사진)</label>
                 <select onchange="updateMediaFile(\${idx}, this.value)">
                   \${fileOptions}
                 </select>
@@ -509,7 +519,44 @@ const HTML_PAGE = `<!DOCTYPE html>
                   소리 켜기 (음소거 해제)
                 </label>
               </div>
-            \` : ''}
+            \` : \`
+              <div style="background: rgba(15, 23, 42, 0.7); padding: 14px 16px; border-radius: 8px; margin-top: 14px; border: 1px solid rgba(56, 189, 248, 0.25);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 13px; font-weight: 800; color: #38bdf8;">📷 뉴스 보도 사진 (최대 5장 선택)</span>
+                    <span style="background: #0284c7; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px;">\${sceneImages.length} / 5장</span>
+                    <span style="font-size: 11px; color: #94a3b8;">* 복수 선택 시 씬 시간에 맞춰 자동 순차 슬라이드쇼 전환</span>
+                  </div>
+                  \${sceneImages.length < 5 ? \`
+                    <button type="button" class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px; border-radius: 6px;" onclick="addScenePhoto(\${idx})">
+                      + 사진 추가 (\${sceneImages.length}/5)
+                    </button>
+                  \` : \`
+                    <span style="font-size: 11px; color: #38bdf8; font-weight: 700;">최대 5장 등록됨</span>
+                  \`}
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px;">
+                  \${sceneImages.map((img, pIdx) => \`
+                    <div style="background: rgba(30, 41, 59, 0.9); border: 1px solid \${pIdx === 0 ? '#38bdf8' : 'rgba(255,255,255,0.1)'}; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 12px; font-weight: 700; color: \${pIdx === 0 ? '#38bdf8' : '#e2e8f0'};">
+                          \${pIdx + 1}번 사진 \${pIdx === 0 ? '(대표)' : ''}
+                        </span>
+                        \${sceneImages.length > 1 ? \`
+                          <button type="button" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; border-radius: 4px; padding: 1px 6px; font-size: 11px; cursor: pointer;" title="사진 삭제" onclick="removeScenePhoto(\${idx}, \${pIdx})">삭제</button>
+                        \` : ''}
+                      </div>
+                      <div style="width: 100%; height: 75px; border-radius: 6px; overflow: hidden; background: #0f172a; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <img src="/public/\${img}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'" />
+                      </div>
+                      <select onchange="updateScenePhoto(\${idx}, \${pIdx}, this.value)" style="font-size: 12px; padding: 6px; width: 100%; border-radius: 6px; background: #0b1120; color: #fff; border: 1px solid rgba(255,255,255,0.2);">
+                        \${imageOnlyFiles.map(f => \`<option value="\${f}" \${f === img ? 'selected' : ''}>\${f}</option>\`).join('')}
+                      </select>
+                    </div>
+                  \`).join('')}
+                </div>
+              </div>
+            \`}
           </div>
         \`;
         container.insertAdjacentHTML('beforeend', html);
@@ -527,13 +574,45 @@ const HTML_PAGE = `<!DOCTYPE html>
       if (filename.endsWith('.mp4') || filename.endsWith('.webm') || filename.endsWith('.mov')) {
         appData.scenes[idx].videoSrc = filename;
         delete appData.scenes[idx].imageSrc;
+        delete appData.scenes[idx].images;
         if (typeof appData.scenes[idx].videoMuted !== 'boolean') {
           appData.scenes[idx].videoMuted = false;
         }
       } else {
         appData.scenes[idx].imageSrc = filename;
+        if (!Array.isArray(appData.scenes[idx].images) || appData.scenes[idx].images.length === 0) {
+          appData.scenes[idx].images = [filename];
+        } else {
+          appData.scenes[idx].images[0] = filename;
+        }
         delete appData.scenes[idx].videoSrc;
       }
+      renderScenes();
+    }
+    function updateScenePhoto(sceneIdx, photoIdx, filename) {
+      if (!Array.isArray(appData.scenes[sceneIdx].images)) {
+        appData.scenes[sceneIdx].images = [appData.scenes[sceneIdx].imageSrc || filename];
+      }
+      appData.scenes[sceneIdx].images[photoIdx] = filename;
+      if (photoIdx === 0) {
+        appData.scenes[sceneIdx].imageSrc = filename;
+      }
+      renderScenes();
+    }
+    function addScenePhoto(sceneIdx) {
+      if (!Array.isArray(appData.scenes[sceneIdx].images)) {
+        appData.scenes[sceneIdx].images = [appData.scenes[sceneIdx].imageSrc || '1001as.jpg'];
+      }
+      if (appData.scenes[sceneIdx].images.length >= 5) return;
+      const imageOnlyFiles = mediaFiles.filter(f => !f.endsWith('.mp4') && !f.endsWith('.webm') && !f.endsWith('.mov') && !f.endsWith('.wav'));
+      const nextImg = imageOnlyFiles[appData.scenes[sceneIdx].images.length % imageOnlyFiles.length] || '1001as.jpg';
+      appData.scenes[sceneIdx].images.push(nextImg);
+      renderScenes();
+    }
+    function removeScenePhoto(sceneIdx, photoIdx) {
+      if (!Array.isArray(appData.scenes[sceneIdx].images) || appData.scenes[sceneIdx].images.length <= 1) return;
+      appData.scenes[sceneIdx].images.splice(photoIdx, 1);
+      appData.scenes[sceneIdx].imageSrc = appData.scenes[sceneIdx].images[0];
       renderScenes();
     }
     function addScene() {
@@ -609,6 +688,28 @@ const server = http.createServer((req, res) => {
   }
 
   const url = req.url.split('?')[0];
+
+  // 정적 미디어 파일 제공 (/public/...)
+  if (url.startsWith('/public/')) {
+    const filename = path.basename(decodeURIComponent(url));
+    const filePath = path.join(PUBLIC_DIR, filename);
+    if (fs.existsSync(filePath)) {
+      const ext = path.extname(filename).toLowerCase();
+      const mimeTypes = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.webp': 'image/webp',
+        '.gif': 'image/gif',
+        '.mp4': 'video/mp4',
+        '.webm': 'video/webm',
+        '.mov': 'video/quicktime'
+      };
+      res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'application/octet-stream' });
+      fs.createReadStream(filePath).pipe(res);
+      return;
+    }
+  }
 
   // API 1: 데이터 조회
   if (url === '/api/data' && req.method === 'GET') {

@@ -23,6 +23,11 @@ export const newsSceneSchema = z.object({
     .optional()
     .describe("현장 취재 담당자 정보"),
   imageSrc: z.string().optional().describe("사진 이미지 파일 경로 (staticFile)"),
+  images: z
+    .array(z.string())
+    .max(5)
+    .optional()
+    .describe("뉴스 사진 목록 (최대 5장까지 선택 가능, 자동 슬라이드쇼 재생)"),
   videoSrc: z.string().optional().describe("동영상 파일 경로 (MP4 등)"),
   mediaSrc: z.string().optional().describe("통합 미디어 경로"),
   mediaType: z.enum(["image", "video", "auto"]).optional().describe("미디어 유형"),

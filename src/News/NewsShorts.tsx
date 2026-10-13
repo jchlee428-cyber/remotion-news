@@ -284,18 +284,24 @@ export const NewsShorts: React.FC<NewsBroadcastProps> = ({
         {(() => {
           const mediaSource = activeScene.videoSrc || activeScene.mediaSrc || activeScene.imageSrc;
           const isVideo = isVideoMedia(mediaSource, activeScene.mediaType);
+          const activeSceneDuration = getSceneDurationInFrames(activeScene, fps);
+          const hasMultipleImages = !!(activeScene.images && activeScene.images.length > 1);
 
           return (
             <NewsMedia
               src={mediaSource}
+              imageSrc={activeScene.imageSrc}
+              images={activeScene.images}
               mediaType={activeScene.mediaType}
               muted={activeScene.videoMuted ?? true}
               volume={activeScene.videoVolume ?? 1}
+              durationInFrames={activeSceneDuration}
+              currentFrame={sceneProgressFrame}
               style={{
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                transform: isVideo
+                transform: isVideo || hasMultipleImages
                   ? undefined
                   : `scale(${interpolate(sceneProgressFrame, [0, 150], [1.02, 1.1])})`,
               }}
@@ -318,6 +324,8 @@ export const NewsShorts: React.FC<NewsBroadcastProps> = ({
         >
           {activeScene.reporter
             ? `${activeScene.reporter.name} 기자 (${activeScene.reporter.location})`
+            : activeScene.images && activeScene.images.length > 1
+            ? `현장 사진 (${activeScene.images.length}장)`
             : "현장 보도"}
         </div>
       </div>

@@ -14,6 +14,8 @@ export type NewsScene = {
     location: string;
   };
   imageSrc?: string;
+  /** 뉴스 사진 목록 (최대 5장까지 선택 가능, 2장 이상 시 자동 슬라이드쇼 재생) */
+  images?: string[];
   videoSrc?: string;
   mediaSrc?: string;
   mediaType?: "image" | "video" | "auto";

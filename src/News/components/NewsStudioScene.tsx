@@ -150,19 +150,24 @@ export const NewsStudioScene: React.FC<NewsStudioSceneProps> = ({
           {(() => {
             const mediaSource = scene.videoSrc || scene.mediaSrc || scene.imageSrc;
             const isVideo = isVideoMedia(mediaSource, scene.mediaType);
+            const hasMultipleImages = !!(scene.images && scene.images.length > 1);
 
             return (
               <>
                 <NewsMedia
                   src={mediaSource}
+                  imageSrc={scene.imageSrc}
+                  images={scene.images}
                   mediaType={scene.mediaType}
                   muted={scene.videoMuted ?? true}
                   volume={scene.videoVolume ?? 1}
+                  durationInFrames={sceneDuration}
+                  currentFrame={frame}
                   style={{
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
-                    transform: isVideo
+                    transform: isVideo || hasMultipleImages
                       ? undefined
                       : `scale(${interpolate(frame, [0, sceneDuration], [1.02, 1.08], { extrapolateRight: "clamp" })}) translate(${interpolate(frame, [0, sceneDuration], [0, -6], { extrapolateRight: "clamp" })}px, ${interpolate(frame, [0, sceneDuration], [0, 4], { extrapolateRight: "clamp" })}px)`,
                   }}
@@ -197,7 +202,11 @@ export const NewsStudioScene: React.FC<NewsStudioSceneProps> = ({
                       boxShadow: "0 0 10px #ef4444",
                     }}
                   />
-                  {isVideo ? "현장 보도 영상" : "현장 보도 자료"}
+                  {isVideo
+                    ? "현장 보도 영상"
+                    : hasMultipleImages
+                    ? `현장 사진 (${scene.images!.length}장)`
+                    : "현장 보도 자료"}
                 </div>
               </>
             );

@@ -19,6 +19,10 @@ export const defaultNewsData: NewsBroadcastProps = {
         role: "방송사역자",
         location: "큰빛교회 목장",
       },
+      images: [
+        staticFile("1001as.jpg"),
+        staticFile("1002as.jpg"),
+      ],
       imageSrc: staticFile("1001as.jpg"),
       durationInSeconds: 4,
     },
