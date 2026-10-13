@@ -88,6 +88,9 @@ function saveMockData(data) {
       lines.push(`      imageSrc: staticFile(${JSON.stringify(path.basename(s.imageSrc || "1001as.jpg"))}),`);
     }
 
+    if (s.transitionType) {
+      lines.push(`      transitionType: ${JSON.stringify(s.transitionType)},`);
+    }
     lines.push(`      durationInSeconds: ${s.durationInSeconds || 4},`);
     return `    {\n${lines.join('\n')}\n    }`;
   });
@@ -103,6 +106,7 @@ export const defaultNewsData: NewsBroadcastProps = {
   scenes: [
 ${sceneBlocks.join(',\n')}
   ],
+  defaultTransitionType: ${JSON.stringify(data.defaultTransitionType || "zoom-in")},
   themeColor: ${JSON.stringify(data.themeColor || "#0052cc")},
   accentColor: ${JSON.stringify(data.accentColor || "#e60000")},
   // 🎵 배경 음악(BGM) 및 스마트 오디오 덕킹 설정
@@ -200,6 +204,7 @@ const HTML_PAGE = `<!DOCTYPE html>
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
     .card {
       background: rgba(15, 23, 42, 0.7);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -433,23 +438,44 @@ const HTML_PAGE = `<!DOCTYPE html>
               <span class="scene-badge">\${idx + 1}번 뉴스 스토리</span>
               \${appData.scenes.length > 1 ? \`<button class="btn btn-dark" style="padding: 4px 10px; color: #ef4444;" onclick="deleteScene(\${idx})">✕ 씬 삭제</button>\` : ''}
             </div>
-            <div class="grid-3">
+            <div class="grid-4">
               <div class="form-group">
                 <label>분류 카테고리</label>
                 <input type="text" value="\${scene.category || ''}" onchange="updateScene(\${idx}, 'category', this.value)">
               </div>
               <div class="form-group">
-                <label>미디어 파일 선택 (public/ 폴더)</label>
+                <label>미디어 파일 선택</label>
                 <select onchange="updateMediaFile(\${idx}, this.value)">
                   \${fileOptions}
                 </select>
               </div>
               <div class="form-group">
-                <label>재생시간 길이 (초 단위)</label>
+                <label>재생시간 길이</label>
                 <div class="range-wrap">
                   <input type="range" min="2" max="30" step="1" value="\${scene.durationInSeconds || 4}" oninput="this.nextElementSibling.innerText = this.value + '초'; updateScene(\${idx}, 'durationInSeconds', Number(this.value));">
                   <span class="range-val">\${scene.durationInSeconds || 4}초</span>
                 </div>
+              </div>
+              <div class="form-group">
+                <label>뉴스 전환 효과 (16종)</label>
+                <select onchange="updateScene(\${idx}, 'transitionType', this.value)">
+                  <option value="zoom-in" \${scene.transitionType === 'zoom-in' || !scene.transitionType ? 'selected' : ''}>🔍 줌인 (기본)</option>
+                  <option value="zoom-out" \${scene.transitionType === 'zoom-out' ? 'selected' : ''}>🔎 줌아웃</option>
+                  <option value="fade" \${scene.transitionType === 'fade' ? 'selected' : ''}>🌫️ 페이드</option>
+                  <option value="slide-left" \${scene.transitionType === 'slide-left' ? 'selected' : ''}>⬅️ 슬라이드 좌</option>
+                  <option value="slide-right" \${scene.transitionType === 'slide-right' ? 'selected' : ''}>➡️ 슬라이드 우</option>
+                  <option value="slide-up" \${scene.transitionType === 'slide-up' ? 'selected' : ''}>⬆️ 슬라이드 상</option>
+                  <option value="slide-down" \${scene.transitionType === 'slide-down' ? 'selected' : ''}>⬇️ 슬라이드 하</option>
+                  <option value="wipe-left" \${scene.transitionType === 'wipe-left' ? 'selected' : ''}>◀️ 와이프 좌</option>
+                  <option value="wipe-right" \${scene.transitionType === 'wipe-right' ? 'selected' : ''}>▶️ 와이프 우</option>
+                  <option value="wipe-circle" \${scene.transitionType === 'wipe-circle' ? 'selected' : ''}>🔘 원형 아이리스</option>
+                  <option value="flip-x" \${scene.transitionType === 'flip-x' ? 'selected' : ''}>🔄 3D 수평 플립</option>
+                  <option value="flip-y" \${scene.transitionType === 'flip-y' ? 'selected' : ''}>🔃 3D 수직 플립</option>
+                  <option value="blur" \${scene.transitionType === 'blur' ? 'selected' : ''}>✨ 시네마틱 블러</option>
+                  <option value="flash" \${scene.transitionType === 'flash' ? 'selected' : ''}>⚡ 뉴스 플래시</option>
+                  <option value="bounce" \${scene.transitionType === 'bounce' ? 'selected' : ''}>🏀 탄성 바운스</option>
+                  <option value="spin" \${scene.transitionType === 'spin' ? 'selected' : ''}>🌀 스핀 줌</option>
+                </select>
               </div>
             </div>
             <div class="form-group">
@@ -517,6 +543,7 @@ const HTML_PAGE = `<!DOCTYPE html>
         subHeadline: '상세 내용을 입력하세요.',
         imageSrc: mediaFiles[0] || '1001as.jpg',
         durationInSeconds: 4,
+        transitionType: 'zoom-in',
         reporter: { name: '방송팀', role: '담당자', location: '본당' }
       });
       renderScenes();

@@ -37,6 +37,27 @@ export const newsSceneSchema = z.object({
     .optional()
     .describe("재생시간 길이 (초 단위, 예: 4, 5, 10초)"),
   durationInFrames: z.number().min(30).max(1800).optional().describe("재생시간 길이 (프레임 단위)"),
+  transitionType: z
+    .enum([
+      "zoom-in",
+      "zoom-out",
+      "fade",
+      "slide-left",
+      "slide-right",
+      "slide-up",
+      "slide-down",
+      "wipe-left",
+      "wipe-right",
+      "wipe-circle",
+      "flip-x",
+      "flip-y",
+      "blur",
+      "flash",
+      "bounce",
+      "spin",
+    ])
+    .optional()
+    .describe("뉴스 전환 효과 (줌인, 줌아웃, 페이드, 슬라이드 4종, 와이프 3종, 3D플립 2종, 블러, 플래시, 바운스, 스핀)"),
 });
 
 /**
@@ -49,6 +70,27 @@ export const newsBroadcastSchema = z.object({
   breakingNewsList: z.array(z.string()).optional().describe("하단 속보 목록"),
   stockTicker: z.string().optional().describe("상단 표어 안내 문구"),
   scenes: z.array(newsSceneSchema).describe("뉴스 씬 목록 (순서대로 순차 방송)"),
+  defaultTransitionType: z
+    .enum([
+      "zoom-in",
+      "zoom-out",
+      "fade",
+      "slide-left",
+      "slide-right",
+      "slide-up",
+      "slide-down",
+      "wipe-left",
+      "wipe-right",
+      "wipe-circle",
+      "flip-x",
+      "flip-y",
+      "blur",
+      "flash",
+      "bounce",
+      "spin",
+    ])
+    .optional()
+    .describe("전체 뉴스 기본 전환 효과 (개별 씬 미설정 시 적용)"),
   themeColor: zColor().describe("메인 테마 컬러 (브랜드 색상)"),
   accentColor: zColor().describe("강조 포인트 컬러 (배지, 하이라이트)"),
   bgmSrc: z.string().optional().describe("BGM 오디오 파일 경로"),

@@ -21,6 +21,7 @@ export const defaultNewsData: NewsBroadcastProps = {
       },
       imageSrc: staticFile("1001as.jpg"),
       durationInSeconds: 4,
+      transitionType: "zoom-in",
     },
     {
       id: "bigtech-korea-datacenter",
@@ -36,6 +37,7 @@ export const defaultNewsData: NewsBroadcastProps = {
       },
       imageSrc: staticFile("1003as.jpg"),
       durationInSeconds: 4,
+      transitionType: "slide-left",
     },
     {
       id: "space-deep-exploration",
@@ -53,8 +55,10 @@ export const defaultNewsData: NewsBroadcastProps = {
       videoMuted: false,
       videoVolume: 1,
       durationInSeconds: 5,
+      transitionType: "flip-x",
     }
   ],
+  defaultTransitionType: "zoom-in",
   themeColor: "#0052cc",
   accentColor: "#e60000",
   // 🎵 배경 음악(BGM) 및 스마트 오디오 덕킹 설정

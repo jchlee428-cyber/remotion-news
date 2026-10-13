@@ -15,11 +15,13 @@ import {
   getAutoFitSubHeadlineSize,
   getAutoFitListTitleSize,
 } from "./utils/textUtils";
+import { getTransitionStyle } from "./utils/transitionEffects";
 
 export const NewsShorts: React.FC<NewsBroadcastProps> = ({
   channelName,
   broadcastDate,
   scenes,
+  defaultTransitionType,
   accentColor = "#e60000",
   bgmSrc,
   bgmVolume,
@@ -71,6 +73,14 @@ export const NewsShorts: React.FC<NewsBroadcastProps> = ({
     Math.sin((frame / 20) * Math.PI * 2),
     [-1, 1],
     [0.4, 1]
+  );
+
+  // 16가지 전환 효과 계산 (쇼츠 미디어 프레임 전용)
+  const shortsTransition = getTransitionStyle(
+    activeScene.transitionType || defaultTransitionType || "zoom-in",
+    sceneProgressFrame,
+    fps,
+    0
   );
 
   return (
@@ -255,8 +265,22 @@ export const NewsShorts: React.FC<NewsBroadcastProps> = ({
           border: "2px solid rgba(255, 255, 255, 0.25)",
           boxShadow: "0 25px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(14, 165, 233, 0.25)",
           zIndex: 20,
+          ...shortsTransition.style,
         }}
       >
+        {/* Flash Whiteout Overlay */}
+        {shortsTransition.flashOverlayOpacity > 0.01 && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundColor: "#ffffff",
+              opacity: shortsTransition.flashOverlayOpacity,
+              pointerEvents: "none",
+              zIndex: 30,
+            }}
+          />
+        )}
         {(() => {
           const mediaSource = activeScene.videoSrc || activeScene.mediaSrc || activeScene.imageSrc;
           const isVideo = isVideoMedia(mediaSource, activeScene.mediaType);

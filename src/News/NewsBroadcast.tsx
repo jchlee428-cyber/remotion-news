@@ -14,6 +14,7 @@ export const NewsBroadcast: React.FC<NewsBroadcastProps> = ({
   broadcastDate,
   stockTicker,
   scenes,
+  defaultTransitionType,
   themeColor,
   accentColor,
   bgmSrc,
@@ -102,6 +103,7 @@ export const NewsBroadcast: React.FC<NewsBroadcastProps> = ({
                   scene={scene}
                   allScenes={scenes}
                   activeSceneIndex={index}
+                  defaultTransitionType={defaultTransitionType}
                 />
 
                 {/* 하단 뉴스 자막바 (Lower Third) */}

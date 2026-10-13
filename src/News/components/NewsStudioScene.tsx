@@ -2,24 +2,26 @@ import React from "react";
 import {
   AbsoluteFill,
   interpolate,
-  spring,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
 import { NewsScene, getSceneDurationInFrames } from "../types";
 import { NewsMedia, isVideoMedia } from "./NewsMedia";
 import { getAutoFitListTitleSize } from "../utils/textUtils";
+import { getTransitionStyle, TransitionType } from "../utils/transitionEffects";
 
 export type NewsStudioSceneProps = {
   scene: NewsScene;
   allScenes?: NewsScene[];
   activeSceneIndex?: number;
+  defaultTransitionType?: TransitionType;
 };
 
 export const NewsStudioScene: React.FC<NewsStudioSceneProps> = ({
   scene,
   allScenes,
   activeSceneIndex = 0,
+  defaultTransitionType,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -34,15 +36,14 @@ export const NewsStudioScene: React.FC<NewsStudioSceneProps> = ({
     extrapolateRight: "clamp",
   });
 
-  // PIP (Picture-In-Picture) screen pop-in spring
-  const pipSpring = spring({
-    frame: frame - 10,
+  // 16가지 고품질 전환 효과 동적 계산
+  const transitionType = scene.transitionType || defaultTransitionType || "zoom-in";
+  const { style: transitionStyle, flashOverlayOpacity } = getTransitionStyle(
+    transitionType,
+    frame,
     fps,
-    config: { damping: 14, mass: 0.9, stiffness: 90 },
-  });
-
-  const pipScale = interpolate(pipSpring, [0, 1], [0.8, 1]);
-  const pipOpacity = interpolate(pipSpring, [0, 1], [0, 1]);
+    6
+  );
 
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
@@ -129,10 +130,22 @@ export const NewsStudioScene: React.FC<NewsStudioSceneProps> = ({
             boxShadow: "0 25px 60px rgba(0, 0, 0, 0.75), 0 0 30px rgba(0, 102, 255, 0.25)",
             border: "2px solid rgba(255, 255, 255, 0.2)",
             position: "relative",
-            transform: `scale(${pipScale})`,
-            opacity: pipOpacity,
+            ...transitionStyle,
           }}
         >
+          {/* Flash Effect Whiteout Overlay */}
+          {flashOverlayOpacity > 0.01 && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundColor: "#ffffff",
+                opacity: flashOverlayOpacity,
+                pointerEvents: "none",
+                zIndex: 30,
+              }}
+            />
+          )}
           {/* Main Topic Photo/Video with NewsMedia */}
           {(() => {
             const mediaSource = scene.videoSrc || scene.mediaSrc || scene.imageSrc;
