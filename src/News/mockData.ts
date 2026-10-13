@@ -38,6 +38,10 @@ export const defaultNewsData: NewsBroadcastProps = {
         role: "갈렙교회에서",
         location: "갈렙교회",
       },
+      images: [
+        staticFile("1001as.jpg"),
+        staticFile("1002as.jpg"),
+      ],
       imageSrc: staticFile("1003as.jpg"),
       durationInSeconds: 4,
     },
