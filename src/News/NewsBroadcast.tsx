@@ -10,6 +10,7 @@ import { NewsTransitionSfx } from "./components/NewsTransitionSfx";
 
 export const NewsBroadcast: React.FC<NewsBroadcastProps> = ({
   channelName,
+  channelSubtext,
   broadcastDate,
   stockTicker,
   scenes,
@@ -59,6 +60,7 @@ export const NewsBroadcast: React.FC<NewsBroadcastProps> = ({
       <Sequence durationInFrames={introDuration} name="News Intro Opener">
         <NewsIntro
           channelName={channelName}
+          subtitle={channelSubtext || "사랑으로 소문난 교회"}
           themeColor={themeColor}
           accentColor={accentColor}
         />

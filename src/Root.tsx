@@ -61,7 +61,9 @@ export const RemotionRoot: React.FC = () => {
           width={1920}
           height={1080}
           defaultProps={{
-            channelName: "K-NEWS 24",
+            channelName: "큰빛뉴스",
+            badgeText: "WEEKLY NEWS",
+            subtitle: "사랑으로 소문난 교회",
             themeColor: "#0b2559",
             accentColor: "#e60000",
           }}

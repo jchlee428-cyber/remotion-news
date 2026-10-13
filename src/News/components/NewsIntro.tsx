@@ -9,12 +9,16 @@ import {
 
 export type NewsIntroProps = {
   channelName?: string;
+  badgeText?: string;
+  subtitle?: string;
   themeColor?: string;
   accentColor?: string;
 };
 
 export const NewsIntro: React.FC<NewsIntroProps> = ({
-  channelName = "K-NEWS 24",
+  channelName = "큰빛뉴스",
+  badgeText = "WEEKLY NEWS",
+  subtitle = "사랑으로 소문난 교회",
   themeColor = "#0b2559",
   accentColor = "#e60000",
 }) => {
@@ -180,7 +184,7 @@ export const NewsIntro: React.FC<NewsIntroProps> = ({
               boxShadow: "0 0 12px #ffffff",
             }}
           />
-          BREAKING NEWS
+          {badgeText}
         </div>
 
         {/* Main Channel Branding */}
@@ -223,7 +227,7 @@ export const NewsIntro: React.FC<NewsIntroProps> = ({
             textShadow: "0 2px 10px rgba(0,0,0,0.6)",
           }}
         >
-          실시간 긴급 속보 ㆍ 현장 연결
+          {subtitle}
         </div>
       </div>
 

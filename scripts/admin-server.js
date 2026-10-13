@@ -97,7 +97,7 @@ import { NewsBroadcastProps } from "./types";
 
 export const defaultNewsData: NewsBroadcastProps = {
   channelName: ${JSON.stringify(data.channelName || "큰빛뉴스")},
-  channelSubtext: ${JSON.stringify(data.channelSubtext || "사랑으로 소문난 큰빛교회")},
+  channelSubtext: ${JSON.stringify(data.channelSubtext || "사랑으로 소문난 교회")},
   broadcastDate: ${JSON.stringify(data.broadcastDate || "2026. 10. 12 (주일)")},
   stockTicker: ${JSON.stringify(data.stockTicker || "사랑으로 소문난 큰빛교회")},
   scenes: [

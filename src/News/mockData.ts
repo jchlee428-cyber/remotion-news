@@ -3,7 +3,7 @@ import { NewsBroadcastProps } from "./types";
 
 export const defaultNewsData: NewsBroadcastProps = {
   channelName: "큰빛뉴스",
-  channelSubtext: "사랑으로 소문난 큰빛교회",
+  channelSubtext: "사랑으로 소문난 교회",
   broadcastDate: "2026. 10. 12 (주일)",
   stockTicker: "사랑으로 소문난 큰빛교회",
   scenes: [
