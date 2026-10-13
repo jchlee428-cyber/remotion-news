@@ -22,6 +22,9 @@ export const defaultNewsData: NewsBroadcastProps = {
       images: [
         staticFile("1001as.jpg"),
         staticFile("1002as.jpg"),
+        staticFile("1001as.jpg"),
+        staticFile("1002as.jpg"),
+        staticFile("1002as.jpg"),
       ],
       imageSrc: staticFile("1001as.jpg"),
       durationInSeconds: 4,
@@ -40,6 +43,9 @@ export const defaultNewsData: NewsBroadcastProps = {
       },
       images: [
         staticFile("1001as.jpg"),
+        staticFile("1002as.jpg"),
+        staticFile("1001as.jpg"),
+        staticFile("1002as.jpg"),
         staticFile("1002as.jpg"),
       ],
       imageSrc: staticFile("1003as.jpg"),
